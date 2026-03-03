@@ -55,17 +55,19 @@ public class JwtFilter implements Filter {
                 return;
             }
 
-            UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
+//            UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
 
             httpRequest.setAttribute("userId", Long.parseLong(claims.getSubject()));
             httpRequest.setAttribute("email", claims.get("email"));
             httpRequest.setAttribute("userRole", claims.get("userRole"));
 
-            if (url.startsWith("/admin") && !UserRole.ADMIN.equals(userRole)) {
-                log.warn("권한 부족: userId={}, role={}, URI={}", claims.getSubject(), userRole, url);
-                sendErrorResponse(httpResponse, HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
-                return;
-            }
+
+            // jwt 는 인증 정보 저장까지만, admin 권한 확인은 interceptor 에서 진행
+//            if (url.startsWith("/admin") && !UserRole.ADMIN.equals(userRole)) {
+//                log.warn("권한 부족: userId={}, role={}, URI={}", claims.getSubject(), userRole, url);
+//                sendErrorResponse(httpResponse, HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
+//                return;
+//            }
 
             chain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
