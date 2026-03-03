@@ -38,15 +38,17 @@ class ManagerServiceTest {
     @InjectMocks
     private ManagerService managerService;
 
+    // NPE -> InvalidRequestException 을 반환 함으로 IRE 로 변경
     @Test
-    public void manager_목록_조회_시_Todo가_없다면_NPE_에러를_던진다() {
+    public void manager_목록_조회_시_Todo가_없다면_IRE_에러를_던진다() {
         // given
         long todoId = 1L;
         given(todoRepository.findById(todoId)).willReturn(Optional.empty());
 
         // when & then
         InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> managerService.getManagers(todoId));
-        assertEquals("Manager not found", exception.getMessage());
+        // 서비스에서 Todo not found 를 message로 설정 했음으로 통일.
+        assertEquals("Todo not found", exception.getMessage());
     }
 
     @Test
