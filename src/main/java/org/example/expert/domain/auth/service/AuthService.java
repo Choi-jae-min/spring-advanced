@@ -10,7 +10,6 @@ import org.example.expert.domain.auth.dto.response.SignupResponse;
 import org.example.expert.domain.auth.exception.AuthException;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.entity.User;
-import org.example.expert.domain.user.enums.UserRole;
 import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +24,6 @@ public class AuthService {
 
     @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
-        // DB에 다녀가지 않는 role체크 먼저 수행
-        UserRole userRole = UserRole.of(signupRequest.getUserRole());
-
-        // 이메일이 존재하는지 먼저 검증.
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
             throw new InvalidRequestException("이미 존재하는 이메일입니다.");
         }
@@ -38,12 +33,12 @@ public class AuthService {
         User newUser = new User(
                 signupRequest.getEmail(),
                 encodedPassword,
-                userRole
+                signupRequest.getUserRole()
         );
 
         User savedUser = userRepository.save(newUser);
 
-        String bearerToken = jwtUtil.createToken(savedUser.getId(), savedUser.getEmail(), userRole);
+        String bearerToken = jwtUtil.createToken(savedUser.getId(), savedUser.getEmail(), signupRequest.getUserRole());
 
         return new SignupResponse(bearerToken);
     }
