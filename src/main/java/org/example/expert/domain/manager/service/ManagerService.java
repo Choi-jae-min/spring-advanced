@@ -29,18 +29,9 @@ public class ManagerService {
 
     @Transactional
     public ManagerSaveResponse saveManager(Long userId, long todoId, ManagerSaveRequest managerSaveRequest) {
-        // 일정을 만든 유저
-        Todo todo = todoService.getTodoById(todoId);
-
-        // todo.getUser() 가 null 이라서 getId 를 호출하면 NPE 발생
-        // todoOwnerId 를 todo.getUser() 가 없다면 null 로 설정
-        Long todoOwnerId = (todo.getUser() == null ? null : todo.getUser().getId());
-
-        if (!ObjectUtils.nullSafeEquals(userId, todoOwnerId)) {
-            throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
-        }
-
         User managerUser = userService.getValidManager(userId, managerSaveRequest.getManagerUserId());
+
+        Todo todo = todoService.getTodoById(todoId);
 
         Manager newManagerUser = new Manager(managerUser, todo);
         Manager savedManagerUser = managerRepository.save(newManagerUser);
@@ -69,22 +60,20 @@ public class ManagerService {
     }
 
     @Transactional
-    public void deleteManager(long userId, long todoId, long managerId) {
-        UserResponse user = userService.getUser(userId);
-
+    public void deleteManager(long todoId, long managerId) {
         Todo todo = todoService.getTodoById(todoId);
-
-        if (todo.getUser() == null || !ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
-            throw new InvalidRequestException("해당 일정을 만든 유저가 유효하지 않습니다.");
-        }
 
         Manager manager = managerRepository.findById(managerId)
                 .orElseThrow(() -> new InvalidRequestException("Manager not found"));
 
-        if (!ObjectUtils.nullSafeEquals(todo.getId(), manager.getTodo().getId())) {
-            throw new InvalidRequestException("해당 일정에 등록된 담당자가 아닙니다.");
-        }
+        validateManagerBelongsToTodo(todo.getId(), manager);
 
         managerRepository.delete(manager);
+    }
+
+    private void validateManagerBelongsToTodo(Long todoId, Manager manager) {
+        if (manager.getTodo() == null || !ObjectUtils.nullSafeEquals(todoId, manager.getTodo().getId())) {
+            throw new InvalidRequestException("해당 일정에 등록된 담당자가 아닙니다.");
+        }
     }
 }

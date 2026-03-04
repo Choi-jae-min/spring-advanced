@@ -1,9 +1,7 @@
 package org.example.expert.domain.manager.controller;
 
-import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.expert.global.util.JwtUtil;
 import org.example.expert.domain.common.annotation.Auth;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
@@ -21,7 +19,6 @@ import java.util.List;
 public class ManagerController {
 
     private final ManagerService managerService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<ManagerSaveResponse> saveManager(
@@ -39,12 +36,9 @@ public class ManagerController {
 
     @DeleteMapping("/{managerId}")
     public void deleteManager(
-            @RequestHeader("Authorization") String bearerToken,
             @PathVariable long todoId,
             @PathVariable long managerId
     ) {
-        Claims claims = jwtUtil.extractClaims(bearerToken.substring(7));
-        long userId = Long.parseLong(claims.getSubject());
-        managerService.deleteManager(userId, todoId, managerId);
+        managerService.deleteManager(todoId, managerId);
     }
 }
