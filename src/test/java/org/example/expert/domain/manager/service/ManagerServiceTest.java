@@ -67,7 +67,7 @@ class ManagerServiceTest {
 
         // when & then
         InvalidRequestException exception = assertThrows(InvalidRequestException.class, () ->
-            managerService.saveManager(authUser, todoId, managerSaveRequest)
+            managerService.saveManager(authUser.getId(), todoId, managerSaveRequest)
         );
 
         assertEquals("일정을 생성한 유저만 담당자를 지정할 수 있습니다.", exception.getMessage());
@@ -116,7 +116,7 @@ class ManagerServiceTest {
         given(managerRepository.save(any(Manager.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        ManagerSaveResponse response = managerService.saveManager(authUser, todoId, managerSaveRequest);
+        ManagerSaveResponse response = managerService.saveManager(authUser.getId(), todoId, managerSaveRequest);
 
         // then
         assertNotNull(response);

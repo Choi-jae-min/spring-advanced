@@ -1,7 +1,6 @@
 package org.example.expert.domain.manager.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.manager.dto.response.ManagerResponse;
@@ -29,27 +28,19 @@ public class ManagerService {
     private final TodoService todoService;
 
     @Transactional
-    public ManagerSaveResponse saveManager(AuthUser authUser, long todoId, ManagerSaveRequest managerSaveRequest) {
+    public ManagerSaveResponse saveManager(Long userId, long todoId, ManagerSaveRequest managerSaveRequest) {
         // 일정을 만든 유저
-        User user = User.fromAuthUser(authUser);
         Todo todo = todoService.getTodoById(todoId);
 
         // todo.getUser() 가 null 이라서 getId 를 호출하면 NPE 발생
         // todoOwnerId 를 todo.getUser() 가 없다면 null 로 설정
         Long todoOwnerId = (todo.getUser() == null ? null : todo.getUser().getId());
-        if (!ObjectUtils.nullSafeEquals(user.getId(), todoOwnerId)) {
+
+        if (!ObjectUtils.nullSafeEquals(userId, todoOwnerId)) {
             throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
         }
 
-        if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
-            throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
-        }
-
-        User managerUser = userService.getManagerById(managerSaveRequest.getManagerUserId());
-
-        if (ObjectUtils.nullSafeEquals(user.getId(), managerUser.getId())) {
-            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다.");
-        }
+        User managerUser = userService.getValidManager(userId, managerSaveRequest.getManagerUserId());
 
         Manager newManagerUser = new Manager(managerUser, todo);
         Manager savedManagerUser = managerRepository.save(newManagerUser);
