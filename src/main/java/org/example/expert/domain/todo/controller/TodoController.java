@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.common.annotation.Auth;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
+import org.example.expert.domain.todo.dto.request.TodoUpdateRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.service.TodoService;
@@ -38,5 +39,10 @@ public class TodoController {
     @GetMapping("/{todoId}")
     public ResponseEntity<TodoResponse> getTodo(@PathVariable long todoId) {
         return ResponseEntity.ok(todoService.getTodo(todoId));
+    }
+
+    @PatchMapping("/{todoId}")
+    public ResponseEntity<TodoResponse> updateTodo(@PathVariable long todoId, @Valid @RequestBody TodoUpdateRequest todoUpdateRequest) {
+        return ResponseEntity.ok(todoService.updateTodo(todoId, todoUpdateRequest));
     }
 }

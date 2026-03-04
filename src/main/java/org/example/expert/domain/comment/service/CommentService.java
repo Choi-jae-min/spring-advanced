@@ -27,7 +27,7 @@ public class CommentService {
     @Transactional
     public CommentSaveResponse saveComment(AuthUser authUser, long todoId, CommentSaveRequest commentSaveRequest) {
         User user = User.fromAuthUser(authUser);
-        Todo todo = todoService.getTodoById(todoId);
+        Todo todo = todoService.getTodoByIdWithUser(todoId);
 
         Comment newComment = new Comment(
                 commentSaveRequest.getContents(),

@@ -5,6 +5,7 @@ import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
+import org.example.expert.domain.todo.dto.request.TodoUpdateRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
@@ -47,6 +48,23 @@ public class TodoService {
         );
     }
 
+    @Transactional
+    public TodoResponse updateTodo(Long todoId, TodoUpdateRequest request) {
+        Todo todo = getTodoByIdWithUser(todoId);
+
+        todo.update(request.getTitle(), request.getContents());
+        User user = todo.getUser();
+        return new TodoResponse(
+                todo.getId(),
+                todo.getTitle(),
+                todo.getContents(),
+                todo.getWeather(),
+                new UserResponse(user.getId(), user.getEmail()),
+                todo.getCreatedAt(),
+                todo.getModifiedAt()
+        );
+    }
+
     @Transactional(readOnly = true)
     public Page<TodoResponse> getTodos(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -81,8 +99,9 @@ public class TodoService {
                 todo.getModifiedAt()
         );
     }
+
     @Transactional(readOnly = true)
-    public Todo getTodoById(long todoId) {
+    public Todo getTodoByIdWithUser(long todoId) {
         return todoRepository.findByIdWithUser(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
     }

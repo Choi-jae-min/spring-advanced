@@ -31,7 +31,7 @@ public class ManagerService {
     public ManagerSaveResponse saveManager(Long userId, long todoId, ManagerSaveRequest managerSaveRequest) {
         User managerUser = userService.getValidManager(userId, managerSaveRequest.getManagerUserId());
 
-        Todo todo = todoService.getTodoById(todoId);
+        Todo todo = todoService.getTodoByIdWithUser(todoId);
 
         Manager newManagerUser = new Manager(managerUser, todo);
         Manager savedManagerUser = managerRepository.save(newManagerUser);
@@ -44,7 +44,7 @@ public class ManagerService {
 
     @Transactional(readOnly = true)
     public List<ManagerResponse> getManagers(long todoId) {
-        Todo todo = todoService.getTodoById(todoId);
+        Todo todo = todoService.getTodoByIdWithUser(todoId);
 
         List<Manager> managerList = managerRepository.findByTodoIdWithUser(todo.getId());
 
@@ -61,7 +61,7 @@ public class ManagerService {
 
     @Transactional
     public void deleteManager(long todoId, long managerId) {
-        Todo todo = todoService.getTodoById(todoId);
+        Todo todo = todoService.getTodoByIdWithUser(todoId);
 
         Manager manager = managerRepository.findById(managerId)
                 .orElseThrow(() -> new InvalidRequestException("Manager not found"));
