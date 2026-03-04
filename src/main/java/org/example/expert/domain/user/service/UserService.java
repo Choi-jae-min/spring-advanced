@@ -45,4 +45,9 @@ public class UserService {
 
         user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
     }
+
+    @Transactional(readOnly = true)
+    public User getManagerById(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("등록하려고 하는 담당자 유저가 존재하지 않습니다."));
+    }
 }
