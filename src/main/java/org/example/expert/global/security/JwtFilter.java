@@ -1,4 +1,4 @@
-package org.example.expert.config;
+package org.example.expert.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.expert.domain.user.enums.UserRole;
+import org.example.expert.global.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
