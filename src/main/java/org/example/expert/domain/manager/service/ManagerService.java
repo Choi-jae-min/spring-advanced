@@ -29,7 +29,7 @@ public class ManagerService {
 
     @Transactional
     public ManagerSaveResponse saveManager(Long userId, long todoId, ManagerSaveRequest managerSaveRequest) {
-        User managerUser = userService.getValidManager(userId, managerSaveRequest.getManagerUserId());
+        User managerUser = getValidManager(userId, managerSaveRequest.getManagerUserId());
 
         Todo todo = todoService.getTodoByIdWithUser(todoId);
 
@@ -75,5 +75,16 @@ public class ManagerService {
         if (manager.getTodo() == null || !ObjectUtils.nullSafeEquals(todoId, manager.getTodo().getId())) {
             throw new InvalidRequestException("해당 일정에 등록된 담당자가 아닙니다.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public User getValidManager(long userId, Long managerId) {
+        User managerUser = userService.getUserById(managerId);
+
+        if (ObjectUtils.nullSafeEquals(userId, managerUser.getId())) {
+            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다.");
+        }
+
+        return managerUser;
     }
 }

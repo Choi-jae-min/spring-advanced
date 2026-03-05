@@ -9,7 +9,6 @@ import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +19,17 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getUser(long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
+        User user = getUserById(userId);
         return new UserResponse(user.getId(), user.getEmail());
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserById(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
     }
 
     @Transactional
     public void changePassword(long userId, UserChangePasswordRequest userChangePasswordRequest) {
-        /// DTO 처리를 위해 아예 주석 처리
-//        if (userChangePasswordRequest.getNewPassword().length() < 8 ||
-//                !userChangePasswordRequest.getNewPassword().matches(".*\\d.*") ||
-//                !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
-//            throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
-//        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidRequestException("User not found"));
 
@@ -47,14 +44,5 @@ public class UserService {
         user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
     }
 
-    @Transactional(readOnly = true)
-    public User getValidManager(long userId, Long managerId) {
-        User managerUser = userRepository.findById(managerId).orElseThrow(() -> new InvalidRequestException("등록하려고 하는 담당자 유저가 존재하지 않습니다."));
 
-        if (ObjectUtils.nullSafeEquals(userId, managerUser.getId())) {
-            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다.");
-        }
-
-        return managerUser;
-    }
 }
