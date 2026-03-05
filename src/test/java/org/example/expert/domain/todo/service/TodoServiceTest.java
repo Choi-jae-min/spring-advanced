@@ -48,6 +48,8 @@ public class TodoServiceTest {
         User user = User.fromAuthUser(authUser);
         String weather = "SUNNY";
         Todo todo = new Todo("할일 제목", "어쩌구 저쩌구", weather, user);
+
+        // -> todoRepository.save(any()) -> willReturn to-do
         given(todoRepository.save(any())).willReturn(todo);
         given(weatherClient.getTodayWeather()).willReturn(weather);
 
