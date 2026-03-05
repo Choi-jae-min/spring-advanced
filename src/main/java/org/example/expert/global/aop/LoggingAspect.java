@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -23,11 +22,8 @@ import java.util.UUID;
 public class LoggingAspect {
     private final ObjectMapper objectMapper;
 
-    @Pointcut("execution(* org.example.expert.domain.user.service.UserAdminService.*(..)) || " +
+    @Around("execution(* org.example.expert.domain.user.service.UserAdminService.*(..)) || " +
             "execution(* org.example.expert.domain.comment.controller.CommentAdminController.*(..))")
-    private void adminApi() {}
-
-    @Around("adminApi()")
     public Object logAdminApi(ProceedingJoinPoint joinPoint) throws Throwable {
         UUID requestId = UUID.randomUUID();
         String requestTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
