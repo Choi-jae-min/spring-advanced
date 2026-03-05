@@ -49,9 +49,8 @@ public class LoggingAspect {
         //서비스 실행
         result = joinPoint.proceed();
 
-        // 결과 response 반환
-        String responseBody = (result != null) ? result.toString() : "No Response";
-        log.info("<<< 요청 ID= {} | API Response:[Body: {}]",requestId, responseBody);
+        // AOP대상 둘다 반환 타입이 void라서 response 가 없음.
+        log.info("<<< 요청 ID= {} | API Response:[Body: {}]",requestId,  "No Response");
 
         return result;
     }
