@@ -10,4 +10,8 @@ class ExpertApplicationTests {
     void contextLoads() {
     }
 
+    @Test
+    void mainMethodRuns() {
+        ExpertApplication.main(new String[]{});
+    }
 }
